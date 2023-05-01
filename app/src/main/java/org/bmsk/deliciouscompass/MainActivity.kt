@@ -2,13 +2,17 @@ package org.bmsk.deliciouscompass
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.Tm128
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import org.bmsk.deliciouscompass.data.model.SearchResult
 import org.bmsk.deliciouscompass.data.repository.SearchRepository
@@ -33,15 +37,49 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.mapView.getMapAsync(this)
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
 
-        SearchRepository.getGoodRestaurant("서울").enqueue(object: Callback<SearchResult> {
-            override fun onResponse(call: Call<SearchResult>, response: Response<SearchResult>) {
-                Log.d("aa", response.body().toString())
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return if (query?.isNotEmpty() == true) {
+                    SearchRepository.getGoodRestaurant(query)
+                        .enqueue(object : Callback<SearchResult> {
+                            override fun onResponse(
+                                call: Call<SearchResult>,
+                                response: Response<SearchResult>
+                            ) {
+                                val searchItemList = response.body()?.items.orEmpty()
+                                if(searchItemList.isEmpty()) {
+                                    Toast.makeText(this@MainActivity, getString(R.string.search_result_is_empty), Toast.LENGTH_SHORT).show()
+                                    return
+                                } else if(isMapInit.not()) {
+                                    Toast.makeText(this@MainActivity, getString(R.string.error_map_init), Toast.LENGTH_SHORT).show()
+                                    return
+                                }
+
+                                val markers = searchItemList.map {
+                                    Marker(Tm128(it.mapx.toDouble(), it.mapy.toDouble()).toLatLng()).apply {
+                                        captionText = it.title
+                                        map = naverMap
+                                    }
+                                }
+
+                                val cameraUpdate = CameraUpdate.scrollTo(markers.first().position)
+                                    .animate(CameraAnimation.Easing)
+                                naverMap.moveCamera(cameraUpdate)
+                            }
+
+                            override fun onFailure(call: Call<SearchResult>, t: Throwable) {
+                                t.printStackTrace()
+                            }
+
+                        })
+                    false
+                } else
+                    true
             }
 
-            override fun onFailure(call: Call<SearchResult>, t: Throwable) {
-                t.printStackTrace()
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return true
             }
-
         })
     }
 
