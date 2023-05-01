@@ -2,4 +2,5 @@
     <string name="app_name">DeliciousCompass</string>
     <string name="search_result_is_empty">검색 결과가 없습니다.</string>
     <string name="error_map_init">오류가 발생했습니다.</string>
+    <string name="delicious_compass">맛있는 나침반</string>
 </resources>

@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         binding.mapView.getMapAsync(this)
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
