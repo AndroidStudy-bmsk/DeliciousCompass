@@ -10,6 +10,21 @@
 > 네이버 지도 SDK는 네이버 지도같은 복잡한 서비스에서 요구되는 다양한 기능을 모두 수용하는 강력한 기능을 제공합니다.
 > [네이버 지도 SDK 소개](https://navermaps.github.io/android-map-sdk/guide-ko/0.html)
 
+### 지도 표시
+
+**MapFragment**
+> 지도를 화면에 나타내는 방법 중 가장 권장되는 것은 `MapFragment`를 사용하는 것입니다. `MapFragment`는 [android.support.v4.app.Fragment](https://developer.android.com/reference/android/support/v4/app/Fragment)의
+> 하위 클래스로, 여타 프래그먼트와 마찬가지로 레이아웃 XML 또는 `FragmentTransaction`을 사용해 추가할 수 있습니다.
+
+권장되는 방법은 `MapFragment`를 사용하는 것이지만 이 프로젝트에서는 단일 액티비티를 사용하기 위해 `MapView`를 사용한다.
+
+**MapView**
+> 프래그먼트를 사용하지 않고 뷰를 바로 사용할 수도 있습니다. MapView를 레이아웃에 추가하면 MapFragment를 사용한 것과 마찬가지로 지도가 화면에 나타납니다.
+> 
+> `MapView`를 사용할 때는 반드시 `MapView`가 포함된 액티비티의 라이프 사이클에 맞추어 `onCreate()`, `onStart()`, `onResume()`, `onPause()`, `onStop()`, `onDestroy()`, `onSaveInstanceState()`, `onLowMemory()`를 호출해야 합니다. 단, `MapView`가 프래그먼트에 포함될 경우 프래그먼트의 `onCreateView()` 또는 `onViewCreated()`에서 `onCreate()`를, `onDestroyView()`에서 `onDestroy()`를 호출해야 합니다.
+> **그렇지 않으면 지도가 정상적으로 동작하지 않습니다**. `MapFragment`를 사용하면 이러한 절차가 필요하지 않으므로 `MapFragment`를 사용하는 것을 권장합니다.
+
+
 ## 2. Naver Open API
 
 > 네이버 오픈API는 네이버 플랫폼의 기능을 외부 개발자가 쉽게 이용할 수 있게 웹 또는 SDK 형태로 공개한 기술들입니다. 네이버 오픈API로 활용할 수 있는 기술에는 네이버
