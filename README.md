@@ -13,17 +13,23 @@
 ### 지도 표시
 
 **MapFragment**
-> 지도를 화면에 나타내는 방법 중 가장 권장되는 것은 `MapFragment`를 사용하는 것입니다. `MapFragment`는 [android.support.v4.app.Fragment](https://developer.android.com/reference/android/support/v4/app/Fragment)의
+> 지도를 화면에 나타내는 방법 중 가장 권장되는 것은 `MapFragment`를 사용하는 것입니다. `MapFragment`
+>
+는 [android.support.v4.app.Fragment](https://developer.android.com/reference/android/support/v4/app/Fragment)
+> 의
 > 하위 클래스로, 여타 프래그먼트와 마찬가지로 레이아웃 XML 또는 `FragmentTransaction`을 사용해 추가할 수 있습니다.
 
 권장되는 방법은 `MapFragment`를 사용하는 것이지만 이 프로젝트에서는 단일 액티비티를 사용하기 위해 `MapView`를 사용한다.
 
 **MapView**
 > 프래그먼트를 사용하지 않고 뷰를 바로 사용할 수도 있습니다. MapView를 레이아웃에 추가하면 MapFragment를 사용한 것과 마찬가지로 지도가 화면에 나타납니다.
-> 
-> `MapView`를 사용할 때는 반드시 `MapView`가 포함된 액티비티의 라이프 사이클에 맞추어 `onCreate()`, `onStart()`, `onResume()`, `onPause()`, `onStop()`, `onDestroy()`, `onSaveInstanceState()`, `onLowMemory()`를 호출해야 합니다. 단, `MapView`가 프래그먼트에 포함될 경우 프래그먼트의 `onCreateView()` 또는 `onViewCreated()`에서 `onCreate()`를, `onDestroyView()`에서 `onDestroy()`를 호출해야 합니다.
-> **그렇지 않으면 지도가 정상적으로 동작하지 않습니다**. `MapFragment`를 사용하면 이러한 절차가 필요하지 않으므로 `MapFragment`를 사용하는 것을 권장합니다.
-
+>
+> `MapView`를 사용할 때는 반드시 `MapView`가 포함된 액티비티의 라이프 사이클에 맞추어 `onCreate()`, `onStart()`, `onResume()`
+> , `onPause()`, `onStop()`, `onDestroy()`, `onSaveInstanceState()`, `onLowMemory()`를 호출해야 합니다.
+> 단, `MapView`가 프래그먼트에 포함될 경우 프래그먼트의 `onCreateView()` 또는 `onViewCreated()`에서 `onCreate()`
+> 를, `onDestroyView()`에서 `onDestroy()`를 호출해야 합니다.
+> **그렇지 않으면 지도가 정상적으로 동작하지 않습니다**. `MapFragment`를 사용하면 이러한 절차가 필요하지 않으므로 `MapFragment`를 사용하는 것을
+> 권장합니다.
 
 ## 2. Naver Open API
 
@@ -78,6 +84,23 @@ https://github.com/material-components/material-components-android/blob/master/d
 - 자식 Behavior 들과의 이동 및 애니메이션 작용 등을 다룰 때 사용
     - AppBarLayout 의 스크롤 시 크기 변경
     - 하단 FloatingButton 의 스크롤 시 위치 변경 등
+
+### behavior
+
+`CoordinatorLayout`과 연관된 하위 뷰의 동작을 설정하는 데 사용된다.
+
+- `app:behavior_expandedOffset="100dp"`: 
+  - `BottomSheetBehavior`에서 뷰의 확장된 상태에서의 상단 여백을 설정한다. 여기서는 상단
+    여백을 100dp로 설정하였는데, 이 속성이 뷰가 완전히 확장될 때의 뷰의 상단 위치를 결정한다.
+- `app:behavior_peekHeight="false"`: 
+  - 이 속성은 `BottomSheetBehavior`에서 뷰의 피크 '피크' 높이를 설정한다. 피크 높이는 뷰가
+    최소한 보여야 하는 높이로, 사용자가 뷰를 드래그하여 확장하기 전에 표시되는 부분이다. 여기서는 피크 높이를 100dp로 설정하였다.
+- `app:behavior_fitToContents="false"`: 
+  - 이 속성은 `BottomSheetBehavior`의 크기가 부모 뷰의 크기에 맞춰지는지 여부를
+    결정한다. `false`로 설정하면, 뷰는 컨텐츠 크기에 맞게 조절되며, 그렇지 않으면 부모 뷰의 크기에 맞게 확장된다.
+- `app:behavior_hideable="false"`: 
+  - 이 속성은 `BottomSheetBehavior`가 숨겨질 수 있는지 여부를 설정한다. 여기서는 `false`로
+    설정하여 뷰를 숨기지 않았으며, 사용자가 뷰를 드래그하여 숨기려 해도 작동하지 않도록 하였다. 기본값은 `true`이다.
 
 ## 4. Moshi
 
