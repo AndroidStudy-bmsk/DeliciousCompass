@@ -1,17 +1,21 @@
 package org.bmsk.deliciouscompass
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.UiSettings
 import com.naver.maps.map.util.FusedLocationSource
+import org.bmsk.deliciouscompass.data.model.SearchResult
+import org.bmsk.deliciouscompass.data.repository.SearchRepository
 import org.bmsk.deliciouscompass.databinding.ActivityMainBinding
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityMainBinding
@@ -28,6 +32,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         binding.mapView.getMapAsync(this)
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+
+        SearchRepository.getGoodRestaurant("서울").enqueue(object: Callback<SearchResult> {
+            override fun onResponse(call: Call<SearchResult>, response: Response<SearchResult>) {
+                Log.d("aa", response.body().toString())
+            }
+
+            override fun onFailure(call: Call<SearchResult>, t: Throwable) {
+                t.printStackTrace()
+            }
+
+        })
     }
 
     override fun onRequestPermissionsResult(
