@@ -2,6 +2,8 @@
 
 맛있는 나침반 - NaverMap, Naver Open API, BottomSheetBehavior, Moshi
 
+![](README_images/맛있는나침반.gif)
+
 ## 1. NaverMap
 
 > 네이버 지도 SDK는 네이버 지도 앱을 비롯한 네이버의 여러 서비스에서 사용 중인 엔진입니다. 대규모 사용자가 이용하는 서비스에 다년간 적용되어 기능과 안정성이 보장됩니다.
