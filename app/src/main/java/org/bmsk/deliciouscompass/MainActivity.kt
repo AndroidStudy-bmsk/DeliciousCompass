@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Tm128
 import com.naver.maps.map.CameraAnimation
@@ -30,8 +31,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var restaurantListAdapter = RestaurantListAdapter {
         // 카메라 움직임
-        moveCamera(it)
+        collapseBottomSheet()
+        moveCamera(it, 17.0)
     }
+
+    private var markers = emptyList<Marker>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,7 +78,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                                     return
                                 }
 
-                                val markers = searchItemList.map {
+                                markers.forEach {
+                                    it.map = null
+                                }
+
+                                markers = searchItemList.map {
                                     Marker(
                                         Tm128(
                                             it.mapx.toDouble(),
@@ -88,7 +96,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
                                 restaurantListAdapter.setData(searchItemList)
 
-                                moveCamera(markers.first().position)
+                                collapseBottomSheet()
+                                moveCamera(markers.first().position, 14.0)
                             }
 
                             override fun onFailure(call: Call<SearchResult>, t: Throwable) {
@@ -130,12 +139,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.mapView.onStart()
     }
 
-    private fun moveCamera(position: LatLng) {
+    private fun moveCamera(position: LatLng, zoomLevel: Double) {
         if (isMapInit.not()) return
 
-        val cameraUpdate = CameraUpdate.scrollTo(position)
+        val cameraUpdate = CameraUpdate.scrollAndZoomTo(position, zoomLevel)
             .animate(CameraAnimation.Easing)
         naverMap.moveCamera(cameraUpdate)
+    }
+
+    private fun collapseBottomSheet() {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetLayout.root)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
     override fun onResume() {
