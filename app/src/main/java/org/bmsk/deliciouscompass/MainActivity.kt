@@ -15,6 +15,7 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
+import org.bmsk.deliciouscompass.data.model.SearchItem
 import org.bmsk.deliciouscompass.data.model.SearchResult
 import org.bmsk.deliciouscompass.data.repository.SearchRepository
 import org.bmsk.deliciouscompass.databinding.ActivityMainBinding
@@ -42,69 +43,29 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.mapView.onCreate(savedInstanceState)
+        initMapView(savedInstanceState)
+        initBottomSheet()
+        initSearchView()
+    }
 
+    private fun initMapView(savedInstanceState: Bundle?) {
+        binding.mapView.onCreate(savedInstanceState)
         binding.mapView.getMapAsync(this)
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+    }
 
+    private fun initBottomSheet() {
         binding.bottomSheetLayout.searchResultRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = restaurantListAdapter
         }
+    }
 
+    private fun initSearchView() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return if (query?.isNotEmpty() == true) {
-                    SearchRepository.getGoodRestaurant(query)
-                        .enqueue(object : Callback<SearchResult> {
-                            override fun onResponse(
-                                call: Call<SearchResult>,
-                                response: Response<SearchResult>
-                            ) {
-                                val searchItemList = response.body()?.items.orEmpty()
-                                if (searchItemList.isEmpty()) {
-                                    Toast.makeText(
-                                        this@MainActivity,
-                                        getString(R.string.search_result_is_empty),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    return
-                                } else if (isMapInit.not()) {
-                                    Toast.makeText(
-                                        this@MainActivity,
-                                        getString(R.string.error_map_init),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    return
-                                }
-
-                                markers.forEach {
-                                    it.map = null
-                                }
-
-                                markers = searchItemList.map {
-                                    Marker(
-                                        Tm128(
-                                            it.mapx.toDouble(),
-                                            it.mapy.toDouble()
-                                        ).toLatLng()
-                                    ).apply {
-                                        captionText = it.title
-                                        map = naverMap
-                                    }
-                                }
-
-                                restaurantListAdapter.setData(searchItemList)
-
-                                collapseBottomSheet()
-                                moveCamera(markers.first().position, 14.0)
-                            }
-
-                            override fun onFailure(call: Call<SearchResult>, t: Throwable) {
-                                t.printStackTrace()
-                            }
-
-                        })
+                    performSearch(query)
                     false
                 } else
                     true
@@ -114,6 +75,69 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 return true
             }
         })
+    }
+
+    private fun performSearch(query: String) {
+        SearchRepository.getGoodRestaurant(query)
+            .enqueue(object : Callback<SearchResult> {
+                override fun onResponse(
+                    call: Call<SearchResult>,
+                    response: Response<SearchResult>
+                ) {
+                    handleSearchResponse(response)
+                }
+
+                override fun onFailure(call: Call<SearchResult>, t: Throwable) {
+                    t.printStackTrace()
+                }
+            })
+    }
+
+    private fun handleSearchResponse(response: Response<SearchResult>) {
+        val searchItemList = response.body()?.items.orEmpty()
+        if (searchItemList.isEmpty()) {
+            Toast.makeText(
+                this@MainActivity,
+                getString(R.string.search_result_is_empty),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        } else if (isMapInit.not()) {
+            Toast.makeText(
+                this@MainActivity,
+                getString(R.string.error_map_init),
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        clearExistingMarkers()
+
+        createAndAddMarkers(searchItemList)
+
+        restaurantListAdapter.setData(searchItemList)
+
+        collapseBottomSheet()
+        moveCamera(markers.first().position, 14.0)
+    }
+
+    private fun clearExistingMarkers() {
+        markers.forEach {
+            it.map = null
+        }
+    }
+
+    private fun createAndAddMarkers(searchItemList: List<SearchItem>) {
+        markers = searchItemList.map {
+            Marker(
+                Tm128(
+                    it.mapx.toDouble(),
+                    it.mapy.toDouble()
+                ).toLatLng()
+            ).apply {
+                captionText = it.title
+                map = naverMap
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(
